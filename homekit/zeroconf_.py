@@ -17,6 +17,7 @@
 from socket import inet_ntoa
 from time import sleep
 from zeroconf import ServiceBrowser, Zeroconf
+import locale
 
 from homekit.feature_flags import FeatureFlags
 from homekit.model.categories import Categories
@@ -38,19 +39,23 @@ class CollectingListener(object):
         return self.data
 
 
+def prepare_string(input_data):
+    return '{t}'.format(t=input_data.encode(locale.getpreferredencoding(), errors='replace').decode())
+
+
 def discover_homekit_devices():
     zeroconf = Zeroconf()
     listener = CollectingListener()
     ServiceBrowser(zeroconf, '_hap._tcp.local.', listener)
     sleep(1)
     for info in listener.get_data():
-        print('Name: {name}'.format(name=info.name))
+        print('Name: {name}'.format(name=prepare_string(info.name)))
         print('Url: http://{ip}:{port}'.format(ip=inet_ntoa(info.address), port=info.port))
         print('Configuration number (c#): {conf}'.format(conf=info.properties[b'c#'].decode()))
         flags = int(info.properties[b'ff'].decode())
         print('Feature Flags (ff): {f} (Flag: {flags})'.format(f=FeatureFlags[flags], flags=flags))
         print('Device ID (id): {id}'.format(id=info.properties[b'id'].decode()))
-        print('Model Name (md): {md}'.format(md=info.properties[b'md'].decode()))
+        print('Model Name (md): {md}'.format(md=prepare_string(info.properties[b'md'].decode())))
         if b'pv' in info.properties:
             print('Protocol Version (pv): {pv}'.format(pv=info.properties[b'pv'].decode()))
         else:
