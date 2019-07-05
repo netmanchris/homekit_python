@@ -515,7 +515,7 @@ iHaper Light Bulb Flashes Flashes
 
 
 ```python
-!python3 -m homekit.pair -d B0:8D:54:FD:2B:13 -p 830-02-273 -a Device -f ihapercolorbulb
+!python3 -m homekit.pair -d B0:8D:54:FD:2B:13 -p 555-55-555 -a Device -f ihapercolorbulb
 ```
 
     Pairing for "Device" was established.
