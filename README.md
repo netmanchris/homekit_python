@@ -107,7 +107,7 @@ This tool initializes the HomeKit controller's storage file.
 
 Usage:
 ```bash
-python3 -m homekit.init_controller_storage
+python3 -m homekit.init_controller_storage -f ${PAIRINGDATAFILE}
 ```
 
 The option `-f` specifies the name of the file to contain the controller's data.
@@ -118,10 +118,12 @@ This tool will list all available HomeKit IP Accessories within the local networ
 
 Usage:
 ```bash
-python3 -m homekit.discover [-t ${TIMEOUT}] [--log ${LOGLEVEL}]
+python3 -m homekit.discover [-t ${TIMEOUT}] [-u] [--log ${LOGLEVEL}]
 ```
 
 The option `-t` specifies the timeout for the inquiry. This is optional and 10s are the default.
+
+The option `-u` activates a filter to show only unpaired devices. This is optional and deactivated by default.
 
 The option `--log` specifies the loglevel for the command. Use `DEBUG` to get more output.
 
@@ -149,10 +151,12 @@ This tool will list all available HomeKit BLE Accessories within range of the Bl
 
 Usage:
 ```bash
-python3 -m homekit.discover_ble [-t ${TIMEOUT}] [--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
+python3 -m homekit.discover_ble [-t ${TIMEOUT}] [-u] [--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
 ```
 
 The option `-t` specifies the timeout for the inquiry. This is optional and 10s are the default.
+
+The option `-u` activates a filter to show only unpaired devices. This is optional and deactivated by default.
 
 The option `--adapter` specifies which Bluetooth device to use. This is optional and `hci0` is the default.
 
@@ -386,10 +390,12 @@ This tool will write values to one or more characteristics.
 
 Usage:
 ```bash
-python3 -m homekit.put_characteristic -f ${PAIRINGDATAFILE} -c ${Characteristics} ${value}[--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
+python3 -m homekit.put_characteristic -f ${PAIRINGDATAFILE} -a ${ALIAS} -c ${Characteristics} ${value}[--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
 ```
 
 The option `-f` specifies the file that contains the pairing data.
+
+The option `-a` specifies the alias for the device.
 
 The option `-c` specifies the characteristics to change. The format is `<aid>.<cid> <value>`. This option can be repeated to change multiple characteristics with one call  (e.g. `-c 1.9 On -c 1.8 22.3`) . 
  
@@ -412,10 +418,12 @@ This tool will register with an accessory and listen to the events send back fro
 
 Usage
 ```bash
-python3 -m homekit.get_events -f ${PAIRINGDATAFILE} -c ${Characteristics} [--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
+python3 -m homekit.get_events -f ${PAIRINGDATAFILE} -a ${ALIAS} -c ${Characteristics} [--adapter ${ADAPTER}] [--log ${LOGLEVEL}]
 ```
 
 The option `-f` specifies the file that contains the pairing data.
+
+The option `-a` specifies the alias for the device.
 
 The option `-c` specifies the characteristics to change. The format is `<aid>.<cid>`. This 
 option can be repeated to listen to multiple characteristics with one call.
@@ -441,7 +449,6 @@ event for 1.22: 18.0
 event for 1.23: 0.16111
 event for 1.8: False
 ```
-
 
 # HomeKit Accessory
 

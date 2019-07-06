@@ -3,14 +3,35 @@ This describes how to report a working HomeKit Accessory.
 **Important**
 Please inform yourself how to reset the HomeKit Accessory under test to factory settings just in case anything goes wrong with the testing.
 
-# Step 1) - discovery
+# Required Information
+
+Please give detailed information on which device was tested. This should whenever possible include:
+ * device manufacturer (can be taken from `accessory-information.manufacturer`)
+ * device model (can be taken from `accessory-information.model`)
+ * device firmware version (can be taken from `accessory-information.firmware.revision`)
+ * device hardware version (can be taken from `accessory-information.hardware.revision`)
+ * type of used communication channel (Bluetooth LE or IP via Wifi etc.)
+ * the version of the homekit library that was used to perform the test
+
+# Step 0) - use the template
+
+You can use the [template](./tested_devices/TEMPLATE.md) starting point for your own report for a HomeKit accessory support by this project.
+
+# Step 1) - discovery / disovery_ble
 
 [Documentation for the discover command](https://github.com/jlusiardi/homekit_python#discover)
 
+[Documentation for the discover command](https://github.com/jlusiardi/homekit_python#discover_ble)
+
 The first step is to check whether the accessory can be discovered:
 
+For IP based accessories:
 ```bash
 python3 -m homekit.discover
+```
+For Bluetooth LE based accessories:
+```bash
+python3 -m homekit.discover_ble
 ```
 
 Try to identify the block that corresponds to your accessory under test and attach the lines. This should look like this:
@@ -45,14 +66,21 @@ python3 -m homekit.identify -d  ${Device ID}
 
 Use this command to create a new storage for the controller's data. Currently this is basically a file containing an empty JSON hash (`{}`).
 
-# Step 4) - pairing
+# Step 4) - pairing / pairing_ble
 
 [Documentation for the pair command](https://github.com/jlusiardi/homekit_python#pair)
 
+[Documentation for the pair command](https://github.com/jlusiardi/homekit_python#pair_ble)
+
 The next step is to pair the accessory under test. Execute this command:
 
+For IP based accessories:
 ```bash
 python3 -m homekit.pair -d  ${Device ID} -p ${Device Setup Code} -f test_report.json -a deviceUnderTest
+```
+For Bluetooth LE based accessories:
+```bash
+python -m homekit.pair_ble -m ${Device MAC} -p ${Device Setup Code} -f test_report.json -a deviceUnderTest
 ```
 
 The output should be:
@@ -101,10 +129,80 @@ Your output should look similar:
 
 # Step 7) - get characteristics
 
+[Documentation for the get_characteristic command](https://github.com/jlusiardi/homekit_python#get_characteristic)
+
+This step checks if characteristics can be read selectivly. For the example from above to read the current humidity and temperature:
+
+```bash
+python3 -m homekit.get_characteristic -f test_report.json -a deviceUnderTest -c 1.13 -c 1.10 
+```
+
+This should return some json like:
+```json
+{
+    "1.13": {
+        "value": 28.7999992370605
+    },
+    "1.10": {
+        "value": 30.1000003814697
+    }
+}
+```
+
+**Note**
+It might not be possible to read all characteristics with all possible options (`-m`, `-p`, `-t` and `-e`). So it is best to take the essential characteristics for the accessory and only work with them.
+
+
 # Step 8) - put characteristics
+
+[Documentation for the put_characteristic command](https://github.com/jlusiardi/homekit_python#put_characteristic)
+
+This step tries to manipulate one or more characteristic of an accessory.
+
+```bash
+python3 -m homekit.put_characteristic -f test_report.json -a deviceUnderTest -c 23.42 On
+```
+
+There should be no output generated and the accessory should react accordingly.
+
+**Note**
+Skip this step, if no characteristic is writable (**pr**) in the listing of `get_accessories`.
 
 # Step 9) - get events
 
-# Step XXX) - remove pairing
+[Documentation for the get_events command](https://github.com/jlusiardi/homekit_python#get_events)
+
+This step tests the capabilities to receive event notifications from accessories. For our example, this will wait for either 5 events or 5 seconds: 
+
+```bash
+python3 -m homekit.get_events -f test_report.json -a deviceUnderTest -e 5 -s 5 -c 1.13 -c 1.10 
+```
+
+One line should be printed for every event:
+```
+event for 1.13: 28.7999992370605
+event for 1.10: 30.1000003814697
+event for 1.13: 28.8999992370605
+event for 1.10: 30.0000003814697
+```
+
+**Note**
+Skip this step, if no characteristic offers events (**ev**) in the listing of `get_accessories`.
+
+# Step 10) - remove pairing
+
+[Documentation for the unpair command](https://github.com/jlusiardi/homekit_python#unpair)
+
+Finally the pairing to the accessory is removed. 
+
+```bash
+python3 -m homekit.unpair -f test_report.json -a deviceUnderTest
+```
+
+This should result in:
+```
+Pairing for "deviceUnderTest" was removed.
+```
+
 
 
